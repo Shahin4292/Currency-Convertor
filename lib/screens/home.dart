@@ -34,14 +34,15 @@ class _HomeState extends State<Home> {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(title: Text('Open Exchange Flutter')),
+        appBar:
+            AppBar(centerTitle: true, title: const Text('Currency Converter')),
 
         //Future Builder for Getting Exchange Rates
         body: Container(
           height: h,
           width: w,
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
+          padding: const EdgeInsets.all(10),
+          decoration: const BoxDecoration(
               image: DecorationImage(
                   image: AssetImage('assets/currency.jpeg'),
                   fit: BoxFit.cover)),
@@ -52,7 +53,7 @@ class _HomeState extends State<Home> {
                 future: result,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   return Center(
                     child: FutureBuilder<Map>(
@@ -60,7 +61,8 @@ class _HomeState extends State<Home> {
                         builder: (context, currSnapshot) {
                           if (currSnapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
