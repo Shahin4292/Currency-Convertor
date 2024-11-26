@@ -1,76 +1,86 @@
-import 'package:currency_converter/function/fetchrates.dart';
-import 'package:currency_converter/model/rates_model.dart';
+import 'package:currency_converter/components/any_to_any.dart';
+import 'package:currency_converter/components/usd_to_any.dart';
 import 'package:flutter/material.dart';
 
+import '../function/fetchrates.dart';
+import '../model/rates_model.dart';
+
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  late Future<RatesModel> result;
-  late Future<Map> allCurrency;
-  final formKey = GlobalKey<FormState>();
+  //Initial Variables
 
+  late Future<RatesModel> result;
+  late Future<Map> allcurrencies;
+  final formkey = GlobalKey<FormState>();
+
+  //Getting RatesModel and All Currencies
   @override
   void initState() {
     super.initState();
     setState(() {
       result = fetchrates();
-      allCurrency = fetchcurrencies();
+      allcurrencies = fetchcurrencies();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.sizeOf(context).height;
-    var width = MediaQuery.sizeOf(context).width;
+    var h = MediaQuery.of(context).size.height;
+    var w = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Currency Converter"),
-      ),
-      body: Container(
-        height: height,
-        width: width,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/currency.jpeg'), fit: BoxFit.cover)),
-        child: SingleChildScrollView(
-          child: Form(
-              key: formKey,
+        appBar: AppBar(title: Text('Open Exchange Flutter')),
+
+        //Future Builder for Getting Exchange Rates
+        body: Container(
+          height: h,
+          width: w,
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/currency.jpeg'),
+                  fit: BoxFit.cover)),
+          child: SingleChildScrollView(
+            child: Form(
+              key: formkey,
               child: FutureBuilder<RatesModel>(
                 future: result,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return Center(child: CircularProgressIndicator());
                   }
                   return Center(
                     child: FutureBuilder<Map>(
-                      future: allCurrency,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<Map<dynamic, dynamic>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                        future: allcurrencies,
+                        builder: (context, currSnapshot) {
+                          if (currSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              UsdToAny(
+                                currencies: currSnapshot.data!,
+                                rates: snapshot.data!.rates,
+                              ),
+                              AnyToAny(
+                                currencies: currSnapshot.data!,
+                                rates: snapshot.data!.rates,
+                              ),
+                            ],
                           );
-                        }
-                        return const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [],
-                        );
-                      },
-                    ),
+                        }),
                   );
                 },
-              )),
-        ),
-      ),
-    );
+              ),
+            ),
+          ),
+        ));
   }
 }
